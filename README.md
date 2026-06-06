@@ -1,30 +1,79 @@
-# pazaggo
+# Pazaggo — Tara Finance Research Agent
 
-Welcome to your new [Mastra](https://mastra.ai/) project! We're excited to see what you'll build.
+## What is this?
+Tara is a personal finance research agent that answers natural language questions about spending and investments using real data from Postgres.
 
-## Getting Started
+## Setup
 
-Start the development server:
+### Prerequisites
+- Node.js 18+
+- Postgres 14+
 
-```shell
-npm run dev
+### Install
+```bash
+npm install
 ```
 
-Open [http://localhost:4111](http://localhost:4111) in your browser to access [Mastra Studio](https://mastra.ai/docs/studio/overview). It provides an interactive UI for building and testing your agents, along with a REST API that exposes your Mastra application as a local service. This lets you start building without worrying about integration right away.
+### Environment Variables
+Create a `.env` file:
+GOOGLE_GENERATIVE_AI_API_KEY=your_key
+DATABASE_URL=postgresql://user:password@host:5432/provue_tara
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=yourpassword
+DB_NAME=provue_tara
 
-You can start editing files inside the `src/mastra` directory. The development server will automatically reload whenever you make changes.
+### Ingest Data
+```bash
+DATA_DIR=./data/sample_a npx tsx scripts/ingest.ts
+```
 
-## Learn more
+### Run Locally
+```bash
+npx tsx server.js
+```
 
-To learn more about Mastra, visit our [documentation](https://mastra.ai/docs/). Your bootstrapped project includes example code for [agents](https://mastra.ai/docs/agents/overview), [tools](https://mastra.ai/docs/agents/using-tools), [workflows](https://mastra.ai/docs/workflows/overview), [scorers](https://mastra.ai/docs/evals/overview), and [observability](https://mastra.ai/docs/observability/overview).
+### Run Evals
+Make sure server is running, then:
+```bash
+node eval.js
+```
 
-If you're new to AI agents, check out our [course](https://mastra.ai/learn) and [YouTube videos](https://youtube.com/@mastra-ai). You can also join our [Discord](https://discord.gg/BTYqqHKUrf) community to get help and share your projects.
+## API
 
-## Deploy to the Mastra platform
+### POST /ask
+Request:
+```json
+{ "question": "How much did I spend on food in January 2025?" }
+```
+Response:
+```json
+{ "answer": "You spent ₹X on food in January 2025." }
+```
 
-The [Mastra platform](https://projects.mastra.ai) provides two products for deploying and managing AI applications built with the Mastra framework:
+## Tech Stack
+- Mastra SDK (TypeScript) — agent, tools, orchestration
+- Postgres 14 — storage layer
+- Google Gemini 2.5 Flash Lite — LLM
+- Express — HTTP server
 
-- **Studio**: A hosted visual environment for testing agents, running workflows, and inspecting traces
-- **Server**: A production deployment target that runs your Mastra application as an API server
+## Tools
+- **query-transactions** — filters transactions by date, category, merchant
+- **get-fund-return** — computes fund NAV-based period return
+- **get-portfolio-value** — computes portfolio value and profit across holdings
 
-Learn more in the [Mastra platform documentation](https://mastra.ai/docs/mastra-platform/overview).
+## Deployed URL
+https://pazaggo.onrender.com
+
+## Model Provider
+Google Gemini 2.5 Flash Lite via @ai-sdk/google
+
+## Postgres
+- Local: provue_tara on localhost:5432
+- Deployed: Render Postgres
+
+## Known Limitations
+- Free tier LLM rate limit of 20 requests/day on Gemini
+- Cold start latency on Render free tier (~30s first request)
+- Merchant alias matching uses simple LIKE, may miss complex variants
